@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blitzer Web UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 400;
+            color: #222;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .input-section, .output-section {
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 16px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #007acc;
+            box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #444;
+        }
+
+        select, .toggle-group {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        .toggle-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .toggle-item input {
+            margin: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #005a9e;
+        }
+
+        button.secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        button.secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .status.error {
+            background-color: #ffecec;
+            color: #d00;
+            border: 1px solid #f99;
+            display: block;
+        }
+
+        .status.success {
+            background-color: #ecffe6;
+            color: #006400;
+            border: 1px solid #9f9;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blitzer</h1>
+        <p class="subtitle">Minimalist text processing for language learning</p>
+        
+        <div class="input-section">
+            <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="languageSelect">Language</label>
+                <select id="languageSelect">
+                    <option value="pli">Pali (pli)</option>
+                    <option value="slv">Slovenian (slv)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="modeSelect">Mode</label>
+                <select id="modeSelect">
+                    <option value="word_list">Word List</option>
+                    <option value="lemma_list">Lemma List</option>
+                    <option value="word_list_context">Word List with Context</option>
+                    <option value="lemma_list_context">Lemma List with Context</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Options</label>
+                <div class="toggle-group">
+                    <div class="toggle-item">
+                        <input type="checkbox" id="freqToggle">
+                        <label for="freqToggle">Include Frequency</label>
+                    </div>
+                    <div class="toggle-item">
+                        <input type="checkbox" id="promptToggle">
+                        <label for="promptToggle">Include Prompt</label>
+                    </div>
+                    <div class="toggle-item">
+                        <input type="checkbox" id="srcToggle">
+                        <label for="srcToggle">Include Source</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button id="processBtn">Process Text</button>
+                <button id="clearBtn" class="secondary">Clear</button>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status"></div>
+        
+        <div class="output-section">
+            <textarea id="outputText" placeholder="Processed output will appear here..." readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const inputText = document.getElementById('inputText');
+            const outputText = document.getElementById('outputText');
+            const languageSelect = document.getElementById('languageSelect');
+            const modeSelect = document.getElementById('modeSelect');
+            const freqToggle = document.getElementById('freqToggle');
+            const promptToggle = document.getElementById('promptToggle');
+            const srcToggle = document.getElementById('srcToggle');
+            const processBtn = document.getElementById('processBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Show status message
+            function showStatus(message, isError = false) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status ' + (isError ? 'error' : 'success');
+                statusMessage.style.display = 'block';
+                
+                // Auto-hide success messages after 3 seconds
+                if (!isError) {
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 3000);
+                }
+            }
+            
+            // Process text using the blitzer CLI
+            async function processText() {
+                const text = inputText.value.trim();
+                
+                if (!text) {
+                    showStatus('Please enter some text to process', true);
+                    return;
+                }
+                
+                showStatus('Processing...', false);
+                
+                try {
+                    const response = await fetch('/api/blitzer', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            language: languageSelect.value,
+                            mode: modeSelect.value,
+                            freq: freqToggle.checked,
+                            prompt: promptToggle.checked,
+                            src: srcToggle.checked
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.text();
+                        outputText.value = result;
+                        showStatus('Processing complete!', false);
+                    } else {
+                        const error = await response.text();
+                        try {
+                            // Try to parse as JSON error response
+                            const errorObj = JSON.parse(error);
+                            showStatus(`Error: ${errorObj.error || 'Unknown error'}`, true);
+                        } catch {
+                            // If not JSON, show the raw error
+                            showStatus(`Error: ${error || 'Unknown error'}`, true);
+                        }
+                    }
+                } catch (error) {
+                    showStatus(`Connection error: ${error.message}. Make sure the backend server is running.`, true);
+                }
+            }
+            
+            // Clear all fields
+            function clearFields() {
+                inputText.value = '';
+                outputText.value = '';
+                languageSelect.value = 'pli';
+                modeSelect.value = 'word_list';
+                freqToggle.checked = false;
+                promptToggle.checked = false;
+                srcToggle.checked = false;
+                statusMessage.style.display = 'none';
+            }
+            
+            // Event listeners
+            processBtn.addEventListener('click', processText);
+            clearBtn.addEventListener('click', clearFields);
+            
+            // Allow Ctrl+Enter to process
+            inputText.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    processText();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

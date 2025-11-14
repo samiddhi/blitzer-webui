@@ -1,0 +1,97 @@
+#+TITLE: Blitzer Web UI
+#+SUBTITLE: A clean, minimalist web interface for the Blitzer CLI tool
+#+AUTHOR: Blitzer Team
+#+OPTIONS: toc:nil num:nil
+
+* Overview
+
+Blitzer Web UI provides a clean, minimalist web interface for the Blitzer CLI tool. It offers a user-friendly interface for processing text with various language and mode options using the underlying Blitzer command-line tool.
+
+* Features
+
+- Clean, minimalist design with digital minimalism principles
+- Input and output text areas
+- Language selection (Pali, Slovenian)
+- Processing mode selection (word_list, lemma_list, word_list_context, lemma_list_context)
+- Toggle switches for additional options (--freq, --prompt, --src)
+- Clear and process buttons
+- Responsive design for different screen sizes
+
+* Requirements
+
+- Python 3.7+
+- [[https://flask.palletsprojects.com/][Flask]] web framework
+- [[file:../blitzer-cli][Blitzer CLI tool]] installed and in your PATH
+
+* Installation
+
+** Install Python dependencies:
+#+BEGIN_SRC sh
+cd ~/dev/blitzer-webui
+pip install -r requirements.txt
+#+END_SRC
+
+** Make sure Blitzer CLI is installed:
+#+BEGIN_SRC sh
+pip install -e ~/dev/blitzer-cli
+#+END_SRC
+
+* Usage
+
+** Start the server:
+#+BEGIN_SRC sh
+cd ~/dev/blitzer-webui
+python server.py
+#+END_SRC
+
+The server starts on port 8080 by default.
+
+** Open your browser and navigate to =http://localhost:8080=
+
+** Use the interface:
+   1. Enter your text in the input area
+   2. Select language, mode and options using the controls
+   3. Click "Process Text" to see results in the output area
+   4. Use "Clear" button to reset the forms
+
+** To use a different port:
+#+BEGIN_SRC sh
+PORT=3000 python server.py
+#+END_SRC
+
+* API
+
+The application exposes a single API endpoint:
+- =POST /api/blitzer= :: Process text with Blitzer CLI
+
+Request body format:
+#+BEGIN_SRC json
+{
+  "text": "Your input text here",
+  "language": "pli",  // or "slv"
+  "mode": "word_list",  // or "lemma_list", "word_list_context", "lemma_list_context"
+  "freq": false,  // include frequency
+  "prompt": false,  // include prompt
+  "src": false  // include source text
+}
+#+END_SRC
+
+* Configuration
+
+The server can be configured using the =PORT= environment variable:
+#+BEGIN_SRC sh
+PORT=3000 python server.py
+#+END_SRC
+
+* Development
+
+To contribute to the project:
+1. Fork the repository
+2. Create a feature branch
+3. Make changes
+4. Test functionality
+5. Submit a pull request
+
+* License
+
+This project is licensed under the MIT License.
