@@ -369,6 +369,44 @@
                 darkModeToggle.textContent = '◐';
             }
             
+            // Save form preferences to localStorage
+            function saveFormPreferences() {
+                localStorage.setItem('language', languageSelect.value);
+                localStorage.setItem('mode', modeSelect.value);
+                localStorage.setItem('freq', freqToggle.checked);
+                localStorage.setItem('prompt', promptToggle.checked);
+                localStorage.setItem('src', srcToggle.checked);
+            }
+            
+            // Load form preferences from localStorage
+            function loadFormPreferences() {
+                const savedLanguage = localStorage.getItem('language');
+                const savedMode = localStorage.getItem('mode');
+                const savedFreq = localStorage.getItem('freq');
+                const savedPrompt = localStorage.getItem('prompt');
+                const savedSrc = localStorage.getItem('src');
+                
+                if (savedLanguage) {
+                    languageSelect.value = savedLanguage;
+                }
+                
+                if (savedMode) {
+                    modeSelect.value = savedMode;
+                }
+                
+                if (savedFreq !== null) {
+                    freqToggle.checked = savedFreq === 'true';
+                }
+                
+                if (savedPrompt !== null) {
+                    promptToggle.checked = savedPrompt === 'true';
+                }
+                
+                if (savedSrc !== null) {
+                    srcToggle.checked = savedSrc === 'true';
+                }
+            }
+            
             // Toggle dark mode
             function toggleDarkMode() {
                 document.body.classList.toggle('dark-mode');
@@ -385,6 +423,16 @@
             
             // Add event listener to dark mode toggle button
             darkModeToggle.addEventListener('click', toggleDarkMode);
+            
+            // Add event listeners to save form preferences when they change
+            languageSelect.addEventListener('change', saveFormPreferences);
+            modeSelect.addEventListener('change', saveFormPreferences);
+            freqToggle.addEventListener('change', saveFormPreferences);
+            promptToggle.addEventListener('change', saveFormPreferences);
+            srcToggle.addEventListener('change', saveFormPreferences);
+            
+            // Load saved form preferences on page load
+            loadFormPreferences();
             
             // Show status message
             function showStatus(message, isError = false) {
