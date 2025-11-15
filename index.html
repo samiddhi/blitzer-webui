@@ -21,6 +21,113 @@
             margin: 0 auto;
         }
 
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode h1 {
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .subtitle {
+            color: #aaa;
+        }
+
+        body.dark-mode textarea {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+
+        body.dark-mode .controls {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+
+        body.dark-mode .control-group label {
+            color: #ccc;
+        }
+
+        body.dark-mode select, 
+        body.dark-mode .toggle-group {
+            background-color: #3d3d3d;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+
+        body.dark-mode .status.error {
+            background-color: #4a1e1e;
+            color: #ff9999;
+            border-color: #7a3030;
+        }
+
+        body.dark-mode .status.success {
+            background-color: #1e4a1e;
+            color: #99ff99;
+            border-color: #307a30;
+        }
+
+        body.dark-mode button {
+            background-color: #005a9e;
+        }
+
+        body.dark-mode button:hover {
+            background-color: #007acc;
+        }
+
+        body.dark-mode button.secondary {
+            background-color: #444;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode button.secondary:hover {
+            background-color: #555;
+        }
+
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .dark-mode-toggle:hover {
+            background-color: #005a9e;
+            color: white;
+            border-color: #005a9e;
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background-color: #333;
+            border-color: #555;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background-color: #007acc;
+            border-color: #007acc;
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background-color: #333;
+            border-color: #555;
+            color: #f0f0f0;
+        }
+
         .container {
             display: flex;
             flex-direction: column;
@@ -179,9 +286,9 @@
     </style>
 </head>
 <body>
+    <button class="dark-mode-toggle" id="darkModeToggle">◐</button>
     <div class="container">
         <h1>Blitzer</h1>
-        <p class="subtitle">Minimalist text processing for language learning</p>
         
         <div class="input-section">
             <textarea id="inputText" placeholder="Enter your text here..."></textarea>
@@ -191,6 +298,7 @@
             <div class="control-group">
                 <label for="languageSelect">Language</label>
                 <select id="languageSelect">
+                    <option value="generic">Generic</option>
                     <option value="pli">Pali (pli)</option>
                     <option value="slv">Slovenian (slv)</option>
                 </select>
@@ -250,6 +358,33 @@
             const processBtn = document.getElementById('processBtn');
             const clearBtn = document.getElementById('clearBtn');
             const statusMessage = document.getElementById('statusMessage');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            // Check for saved theme preference in localStorage
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.textContent = '◑';
+            } else {
+                darkModeToggle.textContent = '◐';
+            }
+            
+            // Toggle dark mode
+            function toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+                
+                // Save theme preference to localStorage
+                if (document.body.classList.contains('dark-mode')) {
+                    localStorage.setItem('theme', 'dark');
+                    darkModeToggle.textContent = '◑';
+                } else {
+                    localStorage.setItem('theme', 'light');
+                    darkModeToggle.textContent = '◐';
+                }
+            }
+            
+            // Add event listener to dark mode toggle button
+            darkModeToggle.addEventListener('click', toggleDarkMode);
             
             // Show status message
             function showStatus(message, isError = false) {
@@ -316,7 +451,6 @@
             function clearFields() {
                 inputText.value = '';
                 outputText.value = '';
-                languageSelect.value = 'pli';
                 modeSelect.value = 'word_list';
                 freqToggle.checked = false;
                 promptToggle.checked = false;
