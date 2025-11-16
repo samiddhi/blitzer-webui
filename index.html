@@ -298,10 +298,9 @@
             <div class="control-group">
                 <label for="languageSelect">Language</label>
                 <select id="languageSelect">
-                    <option value="generic">Generic</option>
-                    <option value="pli">Pali (pli)</option>
-                    <option value="slv">Slovenian (slv)</option>
+                    <!-- Options will be populated dynamically -->
                 </select>
+            </div>
             </div>
             
             <div class="control-group">
@@ -359,6 +358,70 @@
             const clearBtn = document.getElementById('clearBtn');
             const statusMessage = document.getElementById('statusMessage');
             const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            // Language code to name mapping
+            const LANGUAGE_NAMES = {
+                'base': 'Basic Processing',
+                'pli': 'Pali',
+                'slv': 'Slovenian',
+                'eng': 'English',
+                'spa': 'Spanish',
+                'fra': 'French',
+                'deu': 'German',
+                'ita': 'Italian',
+                'por': 'Portuguese',
+                'rus': 'Russian',
+                'chi': 'Chinese',
+                'jpn': 'Japanese',
+                'kor': 'Korean',
+                'ara': 'Arabic',
+                'hin': 'Hindi',
+                'tha': 'Thai',
+                'vie': 'Vietnamese'
+            };
+            
+            // Function to get language name from code
+            function getLanguageName(code) {
+                return LANGUAGE_NAMES[code] || code.charAt(0).toUpperCase() + code.slice(1);
+            }
+            
+            // Function to fetch and populate languages
+            async function fetchAndPopulateLanguages() {
+                try {
+                    const response = await fetch('/api/languages');
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.languages && Array.isArray(data.languages)) {
+                            // Clear current options
+                            languageSelect.innerHTML = '';
+                            
+                            // Add new options
+                            data.languages.forEach(langCode => {
+                                const option = document.createElement('option');
+                                const langName = getLanguageName(langCode);
+                                option.value = langCode;
+                                option.textContent = `${langName} (${langCode})`;
+                                languageSelect.appendChild(option);
+                            });
+                            
+                            // Restore the saved language after population
+                            const savedLanguage = localStorage.getItem('language');
+                            if (savedLanguage && data.languages.includes(savedLanguage)) {
+                                languageSelect.value = savedLanguage;
+                            } else if (data.languages.length > 0) {
+                                languageSelect.value = data.languages[0]; // Set to first language by default
+                            }
+                            
+                            // Now load the rest of the form preferences
+                            loadFormPreferences();
+                        }
+                    } else {
+                        console.error('Failed to fetch languages:', response.status);
+                    }
+                } catch (error) {
+                    console.error('Error fetching languages:', error);
+                }
+            }
             
             // Check for saved theme preference in localStorage
             const savedTheme = localStorage.getItem('theme');
@@ -431,8 +494,8 @@
             promptToggle.addEventListener('change', saveFormPreferences);
             srcToggle.addEventListener('change', saveFormPreferences);
             
-            // Load saved form preferences on page load
-            loadFormPreferences();
+            // Fetch and populate languages on page load, then load form preferences
+            fetchAndPopulateLanguages();
             
             // Show status message
             function showStatus(message, isError = false) {

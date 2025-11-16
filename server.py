@@ -24,6 +24,34 @@ def create_app():
         except FileNotFoundError:
             return "Frontend file not found. Please ensure index.html exists in the same directory as the server.", 404
     
+    @app.route('/api/languages', methods=['GET'])
+    def get_languages():
+        """API endpoint that gets the available languages from blitzer."""
+        try:
+            # Execute the command to get available languages
+            result = subprocess.run(
+                ['blitzer', 'list'],
+                text=True,
+                capture_output=True,
+                check=False  # We'll check the result manually
+            )
+            
+            # Check if the command executed successfully
+            if result.returncode != 0:
+                error_msg = result.stderr.strip() if result.stderr else "Unknown error occurred"
+                return jsonify({"error": f"Command failed: {error_msg}"}), 500
+            
+            # Parse the languages from the output - assuming one language code per line
+            languages = [lang.strip() for lang in result.stdout.strip().split('\n') if lang.strip()]
+            
+            # Return the list of languages
+            return jsonify({"languages": languages}), 200
+            
+        except FileNotFoundError:
+            return jsonify({"error": "blitzer command not found. Make sure blitzer is installed and in your PATH"}), 500
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    
     @app.route('/api/blitzer', methods=['POST'])
     def blitzer_api():
         """API endpoint that calls the blitzer CLI with the provided parameters."""
@@ -41,18 +69,30 @@ def create_app():
             prompt = data.get('prompt', False)
             src = data.get('src', False)
             
-            # Validate language and mode
-            valid_languages = ['pli', 'slv']
+            # Validate modes (still hardcoded as they don't change dynamically)
             valid_modes = ['word_list', 'lemma_list', 'word_list_context', 'lemma_list_context']
-            
-            if language not in valid_languages:
-                return jsonify({"error": f"Invalid language: {language}. Valid options: {valid_languages}"}), 400
             
             if mode not in valid_modes:
                 return jsonify({"error": f"Invalid mode: {mode}. Valid options: {valid_modes}"}), 400
             
+            # Validate language by checking if it's in the list from blitzer
+            result = subprocess.run(
+                ['blitzer', 'list'],
+                text=True,
+                capture_output=True,
+                check=False
+            )
+            
+            if result.returncode == 0:
+                available_languages = [lang.strip() for lang in result.stdout.strip().split('\n') if lang.strip()]
+                if language not in available_languages:
+                    return jsonify({"error": f"Invalid language: {language}. Available options: {available_languages}"}), 400
+            else:
+                # If blitzer list fails, return an error
+                return jsonify({"error": f"Could not fetch available languages: {result.stderr.strip() if result.stderr else 'Unknown error'}"}), 500
+            
             # Build the command
-            cmd = ['blitzer', language, mode]
+            cmd = ['blitzer', 'blitz', language, mode]
             
             if freq:
                 cmd.append('--freq')
