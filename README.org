@@ -12,7 +12,7 @@ Blitzer Web UI provides a clean, minimalist web interface for the Blitzer CLI to
 - Clean, minimalist design with digital minimalism principles
 - Input and output text areas
 - Language selection (Pali, Slovenian)
-- Processing mode selection (word_list, lemma_list, word_list_context, lemma_list_context)
+- Processing flag selection (lemmatize, frequency, context, prompt, source text)
 - Toggle switches for additional options (--freq, --prompt, --src)
 - Clear and process buttons
 - Responsive design for different screen sizes
@@ -50,7 +50,7 @@ The server starts on port 8080 by default.
 
 ** Use the interface:
    1. Enter your text in the input area
-   2. Select language, mode and options using the controls
+   2. Select language and flags using the controls
    3. Click "Process Text" to see results in the output area
    4. Use "Clear" button to reset the forms
 
@@ -69,8 +69,9 @@ Request body format:
 {
   "text": "Your input text here",
   "language": "pli",  // or "slv"
-  "mode": "word_list",  // or "lemma_list", "word_list_context", "lemma_list_context"
+  "lemmatize": false,  // lemmatize words
   "freq": false,  // include frequency
+  "context": false,  // include context
   "prompt": false,  // include prompt
   "src": false  // include source text
 }

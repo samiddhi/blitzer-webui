@@ -64,16 +64,11 @@ def create_app():
             
             text = data['text']
             language = data.get('language', 'pli')
-            mode = data.get('mode', 'word_list')
-            freq = data.get('freq', False)
-            prompt = data.get('prompt', False)
-            src = data.get('src', False)
-            
-            # Validate modes (still hardcoded as they don't change dynamically)
-            valid_modes = ['word_list', 'lemma_list', 'word_list_context', 'lemma_list_context']
-            
-            if mode not in valid_modes:
-                return jsonify({"error": f"Invalid mode: {mode}. Valid options: {valid_modes}"}), 400
+            lemmatize = data.get('lemmatize', False)  # New flag: -L / --lemmatize
+            freq = data.get('freq', False)  # Flag: -f / --freq
+            context = data.get('context', False)  # New flag: -c / --context  
+            prompt = data.get('prompt', False)  # Flag: -p / --prompt
+            src = data.get('src', False)  # Flag: -s / --src
             
             # Validate language by checking if it's in the list from blitzer
             result = subprocess.run(
@@ -91,15 +86,19 @@ def create_app():
                 # If blitzer list fails, return an error
                 return jsonify({"error": f"Could not fetch available languages: {result.stderr.strip() if result.stderr else 'Unknown error'}"}), 500
             
-            # Build the command
-            cmd = ['blitzer', 'blitz', language, mode]
+            # Build the command using new flag-based structure
+            cmd = ['blitzer', 'blitz', '-l', language]
             
+            if lemmatize:
+                cmd.append('-L')
             if freq:
-                cmd.append('--freq')
+                cmd.append('-f')
+            if context:
+                cmd.append('-c')
             if prompt:
-                cmd.append('--prompt')
+                cmd.append('-p')
             if src:
-                cmd.append('--src')
+                cmd.append('-s')
             
             # Execute the command with text input
             result = subprocess.run(

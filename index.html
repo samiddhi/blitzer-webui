@@ -301,24 +301,20 @@
                     <!-- Options will be populated dynamically -->
                 </select>
             </div>
-            </div>
-            
             <div class="control-group">
-                <label for="modeSelect">Mode</label>
-                <select id="modeSelect">
-                    <option value="word_list">Word List</option>
-                    <option value="lemma_list">Lemma List</option>
-                    <option value="word_list_context">Word List with Context</option>
-                    <option value="lemma_list_context">Lemma List with Context</option>
-                </select>
-            </div>
-            
-            <div class="control-group">
-                <label>Options</label>
+                <label>Processing Options</label>
                 <div class="toggle-group">
+                    <div class="toggle-item">
+                        <input type="checkbox" id="lemmatizeToggle">
+                        <label for="lemmatizeToggle">Lemmatize (treat different declensions/forms as same word)</label>
+                    </div>
                     <div class="toggle-item">
                         <input type="checkbox" id="freqToggle">
                         <label for="freqToggle">Include Frequency</label>
+                    </div>
+                    <div class="toggle-item">
+                        <input type="checkbox" id="contextToggle">
+                        <label for="contextToggle">Include Context</label>
                     </div>
                     <div class="toggle-item">
                         <input type="checkbox" id="promptToggle">
@@ -350,8 +346,9 @@
             const inputText = document.getElementById('inputText');
             const outputText = document.getElementById('outputText');
             const languageSelect = document.getElementById('languageSelect');
-            const modeSelect = document.getElementById('modeSelect');
+            const lemmatizeToggle = document.getElementById('lemmatizeToggle');
             const freqToggle = document.getElementById('freqToggle');
+            const contextToggle = document.getElementById('contextToggle');
             const promptToggle = document.getElementById('promptToggle');
             const srcToggle = document.getElementById('srcToggle');
             const processBtn = document.getElementById('processBtn');
@@ -435,8 +432,9 @@
             // Save form preferences to localStorage
             function saveFormPreferences() {
                 localStorage.setItem('language', languageSelect.value);
-                localStorage.setItem('mode', modeSelect.value);
+                localStorage.setItem('lemmatize', lemmatizeToggle.checked);
                 localStorage.setItem('freq', freqToggle.checked);
+                localStorage.setItem('context', contextToggle.checked);
                 localStorage.setItem('prompt', promptToggle.checked);
                 localStorage.setItem('src', srcToggle.checked);
             }
@@ -444,8 +442,9 @@
             // Load form preferences from localStorage
             function loadFormPreferences() {
                 const savedLanguage = localStorage.getItem('language');
-                const savedMode = localStorage.getItem('mode');
+                const savedLemmatize = localStorage.getItem('lemmatize');
                 const savedFreq = localStorage.getItem('freq');
+                const savedContext = localStorage.getItem('context');
                 const savedPrompt = localStorage.getItem('prompt');
                 const savedSrc = localStorage.getItem('src');
                 
@@ -453,12 +452,16 @@
                     languageSelect.value = savedLanguage;
                 }
                 
-                if (savedMode) {
-                    modeSelect.value = savedMode;
+                if (savedLemmatize !== null) {
+                    lemmatizeToggle.checked = savedLemmatize === 'true';
                 }
                 
                 if (savedFreq !== null) {
                     freqToggle.checked = savedFreq === 'true';
+                }
+                
+                if (savedContext !== null) {
+                    contextToggle.checked = savedContext === 'true';
                 }
                 
                 if (savedPrompt !== null) {
@@ -489,8 +492,9 @@
             
             // Add event listeners to save form preferences when they change
             languageSelect.addEventListener('change', saveFormPreferences);
-            modeSelect.addEventListener('change', saveFormPreferences);
+            lemmatizeToggle.addEventListener('change', saveFormPreferences);
             freqToggle.addEventListener('change', saveFormPreferences);
+            contextToggle.addEventListener('change', saveFormPreferences);
             promptToggle.addEventListener('change', saveFormPreferences);
             srcToggle.addEventListener('change', saveFormPreferences);
             
@@ -531,8 +535,9 @@
                         body: JSON.stringify({
                             text: text,
                             language: languageSelect.value,
-                            mode: modeSelect.value,
+                            lemmatize: lemmatizeToggle.checked,
                             freq: freqToggle.checked,
+                            context: contextToggle.checked,
                             prompt: promptToggle.checked,
                             src: srcToggle.checked
                         })
@@ -562,8 +567,9 @@
             function clearFields() {
                 inputText.value = '';
                 outputText.value = '';
-                modeSelect.value = 'word_list';
+                lemmatizeToggle.checked = false;
                 freqToggle.checked = false;
+                contextToggle.checked = false;
                 promptToggle.checked = false;
                 srcToggle.checked = false;
                 statusMessage.style.display = 'none';
