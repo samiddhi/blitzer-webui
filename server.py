@@ -30,7 +30,7 @@ def create_app():
         try:
             # Execute the command to get available languages
             result = subprocess.run(
-                ['blitzer', 'list'],
+                ['blitzer', 'languages', 'list'],
                 text=True,
                 capture_output=True,
                 check=False  # We'll check the result manually
@@ -72,7 +72,7 @@ def create_app():
             
             # Validate language by checking if it's in the list from blitzer
             result = subprocess.run(
-                ['blitzer', 'list'],
+                ['blitzer', 'languages', 'list'],
                 text=True,
                 capture_output=True,
                 check=False
