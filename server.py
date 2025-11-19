@@ -87,18 +87,17 @@ def create_app():
                 return jsonify({"error": f"Could not fetch available languages: {result.stderr.strip() if result.stderr else 'Unknown error'}"}), 500
             
             # Build the command using new flag-based structure
+            # For each boolean option, add the appropriate flag to ensure config doesn't override
             cmd = ['blitzer', 'blitz', '-l', language]
             
-            if lemmatize:
-                cmd.append('-L')
-            if freq:
-                cmd.append('-f')
-            if context:
-                cmd.append('-c')
-            if prompt:
-                cmd.append('-p')
-            if src:
-                cmd.append('-s')
+            # For each boolean option, add the appropriate flag
+            # If the option is True, add the positive flag
+            # If the option is False, add the negative flag to override config files
+            cmd.append('-L' if lemmatize else '--no-lemmatize')
+            cmd.append('-f' if freq else '--no-freq')
+            cmd.append('-c' if context else '--no-context')
+            cmd.append('-p' if prompt else '--no-prompt')
+            cmd.append('-s' if src else '--no-src')
             
             # Execute the command with text input
             result = subprocess.run(
